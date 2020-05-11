@@ -397,12 +397,12 @@ def  extract_info(filename,version,Nucleotide_ID_num,paper_IN_num,GI):
                 Day = "01"        
 
             collection_Date_Format = Year + "-" +M +"-" + Day       
-
+        os.system("cp /home/sxq/NCBI/data/download_data/mysql/nucleotide/Coronaviridae_genbank/%s.gbk  %s/Coronaviridae_genbank_%s/%s.gbk"%(version,dir,date,locus))
         file_mysql.write(str(Nucleotide_ID_num)+"\t"+locus+"\t"+accession+"\t"+version+"\t"+isRefseq+"\t"+spciesname+"\t"+TaxonID+"\t"+definition+"\t"+Type+"\t"+isolate+"\t"+strain+"\t"+host+"\t"+HostFormat+"\t"+isolationSource+"\t"+length+"\t"+collection_date+"\t"+year+"\t"+country+"\t"+CountryFormat+"\t"+LocationFormat+"\t"+submit_date+"\t"+SubmitLocation+"\t"+collection_Date_Format+"\t"+submit_Date_Format+"\t"+genome_b+"\t"+SARS_CoV_2_b+"\t \tNCBI\n")
         file_out.write(locus+"\t"+spciesname+"\t"+definition+"\t"+isolate+"\t"+strain+"\t"+host+"\t"+isolationSource+"\t"+length+"\t"+collection_date+"\t"+year+"\t"+country+"\t"+submit_date+"\t"+collection_Date_Format+"\t"+submit_Date_Format+"\t"+genome+"\t"+SARS_CoV_2+"\n")
     for each_locus in genome_gff:
         os.system("cp %s/Coronaviridae_genbank_%s/%s.fasta  %s/Coronaviridae_genbank_%s/fasta/"%(dir,date,each_locus,dir,date))
-
+    
 
 def main():
     count_number = 0
