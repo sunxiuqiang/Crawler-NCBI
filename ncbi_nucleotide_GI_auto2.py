@@ -217,7 +217,7 @@ def  extract_info(filename,version,Nucleotide_ID_num,paper_IN_num,GI):
             fa_file.write(">%s\n"%(locus))
             for eachbase in range(0,len(fasta_sequence),70):
                 fa_file.write(''.join(fasta_sequence[eachbase:eachbase+70])+"\n")
-
+        os.system("cp %s/Coronaviridae_genbank_%s/%s.fasta /home/sxq/NCBI/data/download_data/mysql/nucleotide/Coronaviridae_fasta/%s.fasta"%(dir,date,locus,version))
         #print (len(fasta_sequence))
         if "/db_xref=" in info:
             TaxonID = re.findall(r'.*/db_xref="taxon:(.*)?"',info)[0].split('"')[0]
