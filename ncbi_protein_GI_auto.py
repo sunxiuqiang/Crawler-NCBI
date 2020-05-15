@@ -18,7 +18,7 @@ import time,requests
 timeout = 20
 socket.setdefaulttimeout(timeout)
 sleep_download_time = random.randint(0,6)
-
+#date = "2020_05_13"
 date = datetime.datetime.now().strftime('%Y_%m_%d')
 
 Entrez.email = "sunxiuqiang15@mails.ucas.ac.cn"
@@ -87,7 +87,7 @@ else:
 
 
 
-input_file = "%s/update_GI_%s"%(in_dir,date)
+input_file = "%s/update_P_acc_%s"%(in_dir,date)
 file1 = open("%s"%(input_file))
 
 
@@ -129,6 +129,10 @@ def get_Gene_info(fasta_cds_aa):
             #print ("gene",gene)
         else:
             gene = " "
+        if "db_xref=GeneID:" in result:
+            GeneID = re.match(r'.*db_xref=GeneID:(.*?)].*', result).group(1)
+        else:
+            GeneID = " "
         if "protein=" in result:
             protein = re.match(r'.*protein=(.*?)].*', result).group(1)
         else:
@@ -182,7 +186,7 @@ def get_Gene_info(fasta_cds_aa):
                     end = loca.split("..")[1]
         ProteinLength =str(len(seq_record.seq))
         ProteinSequence = str(seq_record.seq)
-        dic_pro_id_gene[protein_ID] = [gene,protein,orient,start,end,ProteinLength,ProteinSequence]
+        dic_pro_id_gene[protein_ID] = [gene,protein,orient,start,end,ProteinLength,ProteinSequence,GeneID]
     return dic_pro_id_gene
 
 def nucleotide_info(nucleotide_file):
@@ -215,7 +219,7 @@ def Uniprot_info(pro_GI_ID_file,uniprot_pdb_file):
     dic_protein_id_Nucle_version = {}
 
     with open(pro_GI_ID_file) as GI_file:
-        title = GI_file.readline()
+        #title = GI_file.readline()
         for eachline in GI_file:
             line = eachline.strip().split(",")
             protein_id = line[1]      
@@ -251,10 +255,11 @@ def pro_gp_file(filename,paper_IN_num,Protein_ID_num):
     """
     dic_pro_id_accssion_definition = {}
     record = SeqIO.read(filename, "genbank")
-    ProteinAccession = record.name
+    pro_locus = record.name
+    ProteinAccession =record.annotations['accessions'][0]
     ProteinDefinition = record.description
     pro_id = record.id
-    dic_pro_id_accssion_definition[pro_id] = [ProteinAccession,ProteinDefinition]
+    dic_pro_id_accssion_definition[pro_id] = [ProteinAccession,ProteinDefinition,pro_locus]
     #paper_IN_num =int(paper_IN_num)
     for each in record.annotations["references"]:
         for each_id in each.pubmed_id:
@@ -309,12 +314,11 @@ def main():
     #print ("GeneID:",f3[2].get(f3[3].get(pro_id)))
     for eachline in file1:  #输入file1  每日更新的蛋白库数据，两列信息，pro_locus和pro_id
         count_number +=1
-        line = eachline.strip().split(",")
-        pro_locus = line[0]
-        pro_id = line[1]
+        line = eachline.strip()
+        pro_id = line
         print ("正在下载第%s个数据，pro_id:%s"%(count_number,pro_id))
-        filename = "%s/Coronaviridae_protein/%s.gp"%(dir,pro_locus)
-        
+        #filename = "%s/Coronaviridae_protein/%s.gp"%(dir,pro_locus)
+        filename = "/home/sxq/NCBI/data/download_data/mysql/protein/Coronaviridae_protein/%s.gp"%(pro_id)
         if os.path.isfile(filename):
             if pro_id in f3[3]:
                 GI = f3[3].get(pro_id)
@@ -330,6 +334,7 @@ def main():
                 Protein_ID_num +=1
                 Gene_ID_num +=1 
                 f4 = pro_gp_file(filename,paper_IN_num,Protein_ID_num)
+                pro_locus = f4.get(pro_id)[2]
                 Protein_ID = str(Protein_ID_num)
                 Nucleotide_ID = f2.get(f3[4].get(pro_id))[0]
                 NucleotideLocus = f2.get(f3[4].get(pro_id))[1]
@@ -347,8 +352,9 @@ def main():
                         PDB_ID = f3[0].get(f3[3].get(pro_id))  
                         if f3[3].get(pro_id) in f3[2]: #dic_GI_EntrezGene
                             GeneID = f3[2].get(f3[3].get(pro_id))
+                        
                         else:
-                            GeneID = " "
+                            GeneID =f.get(pro_id)[-1]
                     else:
                         if f3[3].get(pro_id) in f3[2]: #dic_GI_EntrezGene
                             GeneID = f3[2].get(f3[3].get(pro_id))
@@ -363,7 +369,7 @@ def main():
                         if f3[3].get(pro_id) in f3[2]: #dic_GI_EntrezGene
                             GeneID = f3[2].get(f3[3].get(pro_id))
                         else:
-                            GeneID = " "
+                            GeneID = f.get(pro_id)[-1]
                     else:
                         PDB_ID = " "
                         GeneID = " "
@@ -391,8 +397,9 @@ def main():
                 Protein_ID_num +=1
                 Gene_ID_num +=1 
                 f4 = pro_gp_file(filename,paper_IN_num,Protein_ID_num)
+                pro_locus = f4.get(pro_id)[2]
                 Protein_ID = str(Protein_ID_num)
-                Nucleotide_ID = f2.get(f3[4].get(pro_id))[0]
+                Nucleotide_ID = f2.get(f3[4].get(pro_id))[0]          # f3[4].get(pro_id) 通过pro_GI_ID_file文件，得到Nucle_version 
                 NucleotideLocus = f2.get(f3[4].get(pro_id))[1]
                 Spciesname = f2.get(f3[4].get(pro_id))[3]
                 Strain = f2.get(f3[4].get(pro_id))[4]
